@@ -1,8 +1,9 @@
 import type { AuthUser, Session } from './types'
 
 /**
- * Persistence boundary for users. The framework ships an in-memory impl;
- * apps wire a Drizzle-backed one via `@iguir/db` when they're ready.
+ * Persistence boundary for users. The framework ships an in-memory impl
+ * here; for production apps use the Drizzle-backed `DrizzleUserStore` from
+ * `@iguir/core/db`.
  */
 export interface UserStore {
     findById(id: string): Promise<AuthUser | null>

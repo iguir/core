@@ -31,7 +31,7 @@ export default {
         'cli',           // @iguir/cli — `app` binary
         'vite-plugin',   // @iguir/vite-plugin — file routes, JSX, islands
         'auth',          // @iguir/auth — first-party auth module
-        'db',            // @iguir/db — Drizzle integration
+        'db',            // @iguir/db — Drizzle integration + auth stores
         'create-app',    // create-app scaffolder
 
         // ── repo-level / meta ─────────────────────────────────────────────
