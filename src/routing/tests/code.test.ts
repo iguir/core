@@ -93,7 +93,7 @@ describe('defineRoutes + r builder', () => {
     test('body validation returns 422 on bad input', async () => {
         const apiRoutes = defineRoutes(({ r }) => {
             r.post('/', { body: PostBody }, async (c) => {
-                const data = c.req.valid('json' as never) as { title: string }
+                const data = c.req.valid('json')
                 return c.json({ received: data })
             })
         })
@@ -169,7 +169,7 @@ describe('defineRoutes + r builder', () => {
         const apiRoutes = defineRoutes<readonly [typeof usersContract]>(
             ({ r, services }) => {
                 r.get('/:id', { param: z.object({ id: z.string() }) }, async (c) => {
-                    const { id } = c.req.valid('param' as never) as { id: string }
+                    const { id } = c.req.valid('param')
                     const found = await services.users.findById({ id })
                     return c.json({ found })
                 })

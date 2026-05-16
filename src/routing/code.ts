@@ -1,4 +1,4 @@
-import { Hono, type Context, type Handler, type MiddlewareHandler } from 'hono'
+import { Hono, type Context, type Handler, type HonoRequest, type MiddlewareHandler } from 'hono'
 import type { ZodType, z } from 'zod'
 import type { ModuleContract } from '../module/contract'
 import type { ServicesOf } from '../module/types'
@@ -22,28 +22,55 @@ export interface RouteOptions extends RouteValidators {
 }
 
 /**
- * Public Variable map produced by a route's validators. Lets the typed handler
- * read parsed input via `c.req.valid('json' | 'query' | 'param' | 'header')`.
+ * The validator targets a route's options actually populate. We narrow
+ * `c.req.valid(...)` to only the keys whose schema is present, so reading a
+ * target the route didn't declare is a type error — not a runtime surprise.
  */
-type ValidatedFor<TOptions extends RouteOptions> = {
-    json: TOptions['body'] extends ZodType ? z.infer<TOptions['body']> : never
-    query: TOptions['query'] extends ZodType ? z.infer<TOptions['query']> : never
-    param: TOptions['param'] extends ZodType ? z.infer<TOptions['param']> : never
-    header: TOptions['header'] extends ZodType ? z.infer<TOptions['header']> : never
+type ValidTargets<TOptions extends RouteOptions> =
+    | (TOptions['body'] extends ZodType ? 'json' : never)
+    | (TOptions['query'] extends ZodType ? 'query' : never)
+    | (TOptions['param'] extends ZodType ? 'param' : never)
+    | (TOptions['header'] extends ZodType ? 'header' : never)
+
+/** Pull the parsed type for one validator target. */
+type ValidFor<
+    TOptions extends RouteOptions,
+    K extends ValidTargets<TOptions>,
+> = K extends 'json'
+    ? z.infer<NonNullable<TOptions['body']>>
+    : K extends 'query'
+      ? z.infer<NonNullable<TOptions['query']>>
+      : K extends 'param'
+        ? z.infer<NonNullable<TOptions['param']>>
+        : K extends 'header'
+          ? z.infer<NonNullable<TOptions['header']>>
+          : never
+
+/**
+ * Hono's HonoRequest with a `valid()` that's narrowed to the route's declared
+ * validators and typed against the matching Zod schema.
+ *
+ *   r.post('/', { body: PostSchema }, (c) => {
+ *     const data = c.req.valid('json')      // typed as z.infer<typeof PostSchema>
+ *     // c.req.valid('query')               // ❌ type error — no query schema
+ *   })
+ */
+type TypedHonoRequest<TOptions extends RouteOptions> = Omit<HonoRequest, 'valid'> & {
+    valid<K extends ValidTargets<TOptions>>(target: K): ValidFor<TOptions, K>
+}
+
+/** Hono Context with the typed `req.valid()` swap. */
+type TypedContext<TOptions extends RouteOptions> = Omit<Context, 'req'> & {
+    req: TypedHonoRequest<TOptions>
 }
 
 /**
- * Handler shape for a single route. The typed `c.req.valid(target)` is wired
- * by Hono's `validator` middleware at runtime; in user code this widens to
- * `unknown` unless the user pins the schema type — a downstream refinement
- * we'll add when the `r` builder gets full validator-type threading.
+ * Handler shape for a single route. `c.req.valid(target)` is narrowed against
+ * the schemas declared in the route's options — no casts needed.
  */
 export type RouteHandler<TOptions extends RouteOptions = RouteOptions> = (
-    c: Context,
+    c: TypedContext<TOptions>,
 ) => Response | Promise<Response>
-
-// Reserved for the type-threading refinement noted on RouteHandler.
-type _ValidatedFor<TOptions extends RouteOptions> = ValidatedFor<TOptions>
 
 /** The `r` builder users see inside their `defineRoutes(...)` callback. */
 export interface R {

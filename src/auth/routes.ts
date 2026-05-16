@@ -1,5 +1,4 @@
 import type { Context } from 'hono'
-import { z } from 'zod'
 import { setCookie, deleteCookie } from 'hono/cookie'
 import { defineRoutes } from '../routing/code'
 import {
@@ -36,9 +35,7 @@ export interface AuthRoutesDeps {
 export function createAuthRoutes(deps: AuthRoutesDeps) {
     return defineRoutes(({ r }) => {
         r.post('/register', { body: RegisterInputSchema }, async (c) => {
-            const input = c.req.valid('json' as never) as z.infer<
-                typeof RegisterInputSchema
-            >
+            const input = c.req.valid('json')
 
             const existing = await deps.userStore.findByEmail(input.email)
             if (existing) {
@@ -53,7 +50,7 @@ export function createAuthRoutes(deps: AuthRoutesDeps) {
             })
 
             const session = await deps.sessionStore.create(user.id, deps.sessionTtlMs)
-            attachSessionCookie(c, deps, session.id)
+            attachSessionCookie(c as unknown as Context, deps, session.id)
 
             const publicUser = toPublicUser(user)
             await deps.busRef.current.publish(
@@ -64,9 +61,7 @@ export function createAuthRoutes(deps: AuthRoutesDeps) {
         })
 
         r.post('/login', { body: LoginInputSchema }, async (c) => {
-            const { email, password } = c.req.valid('json' as never) as z.infer<
-                typeof LoginInputSchema
-            >
+            const { email, password } = c.req.valid('json')
 
             const user = await deps.userStore.findByEmail(email)
             if (!user) throw new UnauthorizedError('Invalid email or password')
@@ -75,7 +70,7 @@ export function createAuthRoutes(deps: AuthRoutesDeps) {
             if (!ok) throw new UnauthorizedError('Invalid email or password')
 
             const session = await deps.sessionStore.create(user.id, deps.sessionTtlMs)
-            attachSessionCookie(c, deps, session.id)
+            attachSessionCookie(c as unknown as Context, deps, session.id)
 
             await deps.busRef.current.publish(
                 authEvents.events['auth.user.logged_in'],
@@ -101,7 +96,7 @@ export function createAuthRoutes(deps: AuthRoutesDeps) {
                 }
             }
 
-            deleteCookie(c, deps.cookieName, { path: '/' })
+            deleteCookie(c as unknown as Context, deps.cookieName, { path: '/' })
             return c.body(null, 204)
         })
 

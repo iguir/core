@@ -20,7 +20,7 @@ export function createApiRoutes(service: PostsService) {
             '/:id',
             { auth: true, permission: 'posts.list', param: z.object({ id: z.string() }) },
             (c) => {
-                const { id } = c.req.valid('param' as never) as { id: string }
+                const { id } = c.req.valid('param')
                 const post = service.findById(id)
                 if (!post) throw new NotFoundError(`post "${id}" not found`)
                 return c.json(post)
@@ -31,10 +31,7 @@ export function createApiRoutes(service: PostsService) {
             '/',
             { auth: true, permission: 'posts.create', body: CreatePostBody },
             (c) => {
-                const input = c.req.valid('json' as never) as {
-                    title: string
-                    body: string
-                }
+                const input = c.req.valid('json')
                 const user = c.get('user')
                 const created = service.create({
                     title: input.title,
@@ -49,7 +46,7 @@ export function createApiRoutes(service: PostsService) {
             '/:id',
             { auth: true, permission: 'posts.delete', param: z.object({ id: z.string() }) },
             (c) => {
-                const { id } = c.req.valid('param' as never) as { id: string }
+                const { id } = c.req.valid('param')
                 const ok = service.delete(id)
                 if (!ok) throw new NotFoundError(`post "${id}" not found`)
                 return c.body(null, 204)
