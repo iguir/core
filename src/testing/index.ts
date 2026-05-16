@@ -30,6 +30,8 @@ import type {
 } from '../module/contract'
 import type { ModuleLogger, ModuleSpec, ServicesOf } from '../module/types'
 import type { DefinedRoutes } from '../routing/code'
+import { mountPages } from '../routing/file'
+import type { PageManifest } from '../jsx/types'
 
 /** Options accepted by `testApp()`. */
 export interface TestAppOptions {
@@ -169,13 +171,18 @@ export async function testApp(options: TestAppOptions): Promise<TestApp> {
     app.use('*', aclContext({ registry: acl }))
 
     for (const m of registry.inBootOrder()) {
-        if (!m.routes) continue
-        const defined = m.routes.handler as unknown as DefinedRoutes
-        const picked = services.pickFor(
-            (m.imports as readonly ModuleContract[] | undefined) ?? [],
-        ) as unknown as ServicesOf<readonly ModuleContract[]>
-        const sub = await defined.build(picked)
-        app.route(m.routes.prefix ?? '/', sub)
+        if (m.routes) {
+            const defined = m.routes.handler as unknown as DefinedRoutes
+            const picked = services.pickFor(
+                (m.imports as readonly ModuleContract[] | undefined) ?? [],
+            ) as unknown as ServicesOf<readonly ModuleContract[]>
+            const sub = await defined.build(picked)
+            app.route(m.routes.prefix ?? '/', sub)
+        }
+        if (m.pages) {
+            const pageSub = mountPages(m.pages.manifest as PageManifest)
+            app.route(m.pages.prefix ?? '/', pageSub)
+        }
     }
 
     const lifecycle = new Lifecycle({ registry, services, logger, bus })

@@ -118,8 +118,15 @@ function validate(spec: ModuleSpec): void {
         }
     }
     if (spec.pages !== undefined) {
-        if (!spec.pages.dir || typeof spec.pages.dir !== 'string') {
-            throw new Error(`${tag} pages.dir is required`)
+        if (
+            !spec.pages.manifest ||
+            typeof spec.pages.manifest !== 'object' ||
+            Array.isArray(spec.pages.manifest)
+        ) {
+            throw new Error(
+                `${tag} pages.manifest must be an object (route path → page entry). ` +
+                    'Generate it with @iguir/vite-plugin or write one by hand for tests.',
+            )
         }
         if (
             spec.pages.prefix !== undefined &&

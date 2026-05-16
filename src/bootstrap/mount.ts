@@ -2,10 +2,12 @@ import { Hono } from 'hono'
 import type { AclRegistry } from '../acl/registry'
 import { aclContext } from '../acl/middleware'
 import { createErrorHandler } from '../errors/handler'
+import type { PageManifest } from '../jsx/types'
 import type { ModuleContract } from '../module/contract'
 import type { ModuleRegistry } from '../module/registry'
 import type { ModuleLogger, ServicesOf } from '../module/types'
 import type { DefinedRoutes } from '../routing/code'
+import { mountPages } from '../routing/file'
 import type { ServiceRegistry } from './resolve'
 
 /** Dependencies needed to assemble the Hono app. */
@@ -45,12 +47,10 @@ export async function mount(deps: MountDeps): Promise<Hono> {
     for (const m of registry.inBootOrder()) {
         // Subscriptions are wired in bootstrap/index.ts after the bus is built;
         // mount.ts only deals with HTTP-side wiring.
+
         if (m.pages) {
-            throw new Error(
-                `[module:${m.name}] declares \`pages\` but the file-route ` +
-                    'consumer is not yet wired into bootstrap. This will land ' +
-                    'in Step 7 (src/routing/file.ts, src/jsx/*).',
-            )
+            const sub = mountPages(m.pages.manifest as PageManifest)
+            app.route(m.pages.prefix ?? '/', sub)
         }
 
         if (!m.routes) continue

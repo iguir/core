@@ -83,6 +83,25 @@ export class ConflictError extends AppError {
 }
 
 /**
+ * 3xx — redirect the client. Loaders may throw this instead of returning data
+ * to short-circuit into a redirect. The JSX renderer turns it into a real
+ * redirect response with the right `Location` header.
+ */
+export class RedirectError extends AppError {
+    readonly location: string
+
+    constructor(location: string, status: 301 | 302 | 303 | 307 | 308 = 302) {
+        super({
+            code: 'redirect',
+            message: `Redirecting to ${location}`,
+            status,
+            details: { location },
+        })
+        this.location = location
+    }
+}
+
+/**
  * 422 — request was syntactically valid but failed semantic validation.
  * `details` carries the per-field issues (commonly a flattened Zod issue list).
  */

@@ -91,14 +91,14 @@ src/
 
 Each step must work end-to-end before starting the next.
 
-1. **Types & factories** — `types.ts`, `module/types.ts`, `defineModule`, `defineContract`, ACL primitives ✅.
-2. **ACL runtime** — registry ✅, resolve ✅, middleware ✅.
-3. **Bootstrap & runtime** — module registry, `bootstrap/*`, `server.ts`.  ← **NEXT**
-4. **Routing & validation** — `defineRoutes` + r builder, Zod middleware, errors.
-5. **Logging & events** — Pino, EventBus interface + in-memory impl, `defineEvents`.
-6. **Validation surface** — `defineEnv`, `defineConfig`, Context types, OpenAPI.
-7. **JSX layer** — renderer, layout, islands, meta + file-route consumer.
-8. **Sibling packages** — `@iguir/testing`, `@iguir/cli`, `@iguir/db`, `@iguir/vite-plugin`, `@iguir/auth`, `create-app`, docs.
+1. **Types & factories** ✅
+2. **ACL runtime** ✅
+3. **Bootstrap & runtime** ✅
+4. **Routing & validation** ✅ — `defineRoutes` + `r` builder with type-narrowed `c.req.valid()`, Zod middleware, error handler.
+5. **Logging & events** ✅ — Pino, in-memory EventBus, `defineEvents`.
+6. **Validation surface** ✅ — `defineEnv`, `defineConfig`, Context types, OpenAPI 3.1 generator.
+7. **JSX layer** ✅ runtime done — `renderPage`, `defineLayout` + `RootLayout`, `defineIsland` + registry, `defineMeta` + `renderMetaTags`, `mountPages(manifest)` consumer. Filesystem scanning + client hydration land with `@iguir/vite-plugin`.
+8. **Sibling packages** — `@iguir/testing` ✅, `@iguir/cli` ✅, `@iguir/db` ✅, `@iguir/auth` ✅, `create-app` ✅, `@iguir/vite-plugin` ⏭, docs ⏭.
 
 ---
 

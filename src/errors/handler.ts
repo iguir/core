@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { ZodError } from 'zod'
 import type { ModuleLogger } from '../module/types'
-import { AppError, ValidationError, isAppError } from './index'
+import { AppError, RedirectError, ValidationError, isAppError } from './index'
 
 /** Shape of the JSON body we send back for every error. */
 export interface ErrorResponseBody {
@@ -40,6 +40,15 @@ export function createErrorHandler(options: ErrorHandlerOptions = {}) {
         options.hideInternals ?? process.env.NODE_ENV === 'production'
 
     return (err: Error, c: Context): Response => {
+        // Redirects bypass the JSON-body path — emit a real redirect response
+        // with the Location header. Loaders that throw RedirectError land here.
+        if (err instanceof RedirectError) {
+            return c.redirect(
+                err.location,
+                err.status as 301 | 302 | 303 | 307 | 308,
+            )
+        }
+
         const body = toErrorBody(err, hideInternals)
 
         if (options.logger) {

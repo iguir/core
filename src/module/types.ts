@@ -38,9 +38,18 @@ export interface ModuleApiRoutes {
     prefix?: string
 }
 
-/** Page routes mount configuration on a module. */
+/**
+ * Page routes mount configuration on a module. Accepts an explicit
+ * `PageManifest` (mapping route paths to page entries). Filesystem-based
+ * page discovery is provided by `@iguir/vite-plugin` — it generates the
+ * manifest at build time and the user imports it.
+ *
+ * The manifest type stays opaque here to avoid a hard dep on jsx types
+ * inside the core module layer; the runtime in `routing/file.ts` does the
+ * real validation.
+ */
 export interface ModulePages {
-    dir: string
+    manifest: Record<string, unknown>
     prefix?: string
 }
 
