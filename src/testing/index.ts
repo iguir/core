@@ -1,5 +1,5 @@
 /**
- * `@app/testing` (currently colocated in `src/testing/` — will move to its own
+ * `@iguir/testing` (currently colocated in `src/testing/` — will move to its own
  * package when this repo becomes a monorepo).
  *
  * Goal: tests that exercise the whole framework end-to-end without spinning up

@@ -10,7 +10,7 @@ export default {
       2,
       'always',
       [
-        // ── @app/core source tree ─────────────────────────────────────────
+        // ── @iguir/core source tree ─────────────────────────────────────────
         'core',          // framework entrypoint, public surface, cross-cutting
         'acl',           // src/acl/* — roles, permissions, resolver, middleware
         'module',        // src/module/* — defineModule, defineContract, registry
@@ -27,11 +27,11 @@ export default {
         'types',         // src/types.ts and other type-only changes
 
         // ── sibling packages (added as they land) ─────────────────────────
-        'testing',       // @app/testing — testApp() helper
-        'cli',           // @app/cli — `app` binary
-        'vite-plugin',   // @app/vite-plugin — file routes, JSX, islands
-        'auth',          // @app/auth — first-party auth module
-        'db',            // @app/db — Drizzle integration
+        'testing',       // @iguir/testing — testApp() helper
+        'cli',           // @iguir/cli — `app` binary
+        'vite-plugin',   // @iguir/vite-plugin — file routes, JSX, islands
+        'auth',          // @iguir/auth — first-party auth module
+        'db',            // @iguir/db — Drizzle integration
         'create-app',    // create-app scaffolder
 
         // ── repo-level / meta ─────────────────────────────────────────────

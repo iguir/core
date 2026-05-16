@@ -1,5 +1,5 @@
 /**
- * `@app/auth` — first-party auth module (currently colocated in `src/auth/`,
+ * `@iguir/auth` — first-party auth module (currently colocated in `src/auth/`,
  * will move to `packages/auth` on monorepo split).
  *
  * Dogfoods every framework primitive: `defineModule`, `defineContract`,

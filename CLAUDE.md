@@ -38,7 +38,7 @@ This file is auto-loaded into every Claude Code session. Keep it short and decis
 | -------------- | ---------------------------------------------- |
 | Runtime        | Bun (latest stable)                            |
 | HTTP           | Hono `^4` (never forked)                       |
-| Build/Dev      | Vite + custom `@app/vite-plugin`               |
+| Build/Dev      | Vite + custom `@iguir/vite-plugin`               |
 | Language       | TypeScript strict, `const T` generics          |
 | Validation     | Zod                                            |
 | ORM            | Drizzle (`Bun.sql` for Postgres, `bun:sqlite`) |
@@ -98,7 +98,7 @@ Each step must work end-to-end before starting the next.
 5. **Logging & events** — Pino, EventBus interface + in-memory impl, `defineEvents`.
 6. **Validation surface** — `defineEnv`, `defineConfig`, Context types, OpenAPI.
 7. **JSX layer** — renderer, layout, islands, meta + file-route consumer.
-8. **Sibling packages** — `@app/testing`, `@app/cli`, `@app/db`, `@app/vite-plugin`, `@app/auth`, `create-app`, docs.
+8. **Sibling packages** — `@iguir/testing`, `@iguir/cli`, `@iguir/db`, `@iguir/vite-plugin`, `@iguir/auth`, `create-app`, docs.
 
 ---
 

@@ -25,7 +25,7 @@ function makeApp() {
     return { userStore, sessionStore, auth }
 }
 
-describe('@app/auth — registration', () => {
+describe('@iguir/auth — registration', () => {
     test('register creates a user, sets session cookie, emits event', async () => {
         const { auth } = makeApp()
         const app = await testApp({ roles, modules: [auth] })
@@ -88,7 +88,7 @@ describe('@app/auth — registration', () => {
     })
 })
 
-describe('@app/auth — login + session lifecycle', () => {
+describe('@iguir/auth — login + session lifecycle', () => {
     test('login → me → logout round-trip', async () => {
         const { auth, userStore } = makeApp()
         const app = await testApp({ roles, modules: [auth] })
@@ -165,7 +165,7 @@ describe('@app/auth — login + session lifecycle', () => {
     })
 })
 
-describe('@app/auth — contract', () => {
+describe('@iguir/auth — contract', () => {
     test('other modules can call the auth contract via services', async () => {
         const { auth } = makeApp()
         const app = await testApp({ roles, modules: [auth] })
@@ -197,7 +197,7 @@ describe('@app/auth — contract', () => {
     })
 })
 
-describe('@app/auth — event integration', () => {
+describe('@iguir/auth — event integration', () => {
     test('a subscriber module sees auth events end-to-end', async () => {
         const { auth } = makeApp()
         const received: unknown[] = []
@@ -232,7 +232,7 @@ describe('@app/auth — event integration', () => {
     })
 })
 
-describe('@app/auth — registered events are namespaced correctly', () => {
+describe('@iguir/auth — registered events are namespaced correctly', () => {
     test('event names use "auth.user.<kind>" form', () => {
         expect(Object.keys(authEvents.events)).toEqual([
             'auth.user.registered',

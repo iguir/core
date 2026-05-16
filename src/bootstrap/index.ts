@@ -84,7 +84,7 @@ export async function bootstrap(
 }
 
 /**
- * Console-backed structural logger. Used until `@app/logger` (Pino) lands so
+ * Console-backed structural logger. Used until `@iguir/core/logger` (Pino) lands so
  * tests and early consumers don't have to inject one by hand. Drop-in
  * replaceable with `pino()` later — same surface.
  */
