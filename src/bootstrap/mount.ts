@@ -34,13 +34,8 @@ export async function mount(deps: MountDeps): Promise<Hono> {
     app.use('*', aclContext({ registry: acl }))
 
     for (const m of registry.inBootOrder()) {
-        if (m.subscriptions) {
-            throw new Error(
-                `[module:${m.name}] declares \`subscriptions\` but the event bus ` +
-                    'is not yet wired into bootstrap. This will land in Step 5 ' +
-                    '(src/events/*).',
-            )
-        }
+        // Subscriptions are wired in bootstrap/index.ts after the bus is built;
+        // mount.ts only deals with HTTP-side wiring.
         if (m.pages) {
             throw new Error(
                 `[module:${m.name}] declares \`pages\` but the file-route ` +

@@ -1,6 +1,9 @@
 import type { Hono } from 'hono'
 import { AclRegistry } from '../acl/registry'
 import type { AclSpec, Roles } from '../acl/types'
+import { InMemoryEventBus } from '../events/memory'
+import type { EventBus } from '../events/bus'
+import type { DefinedEvents } from '../events/define'
 import { ModuleRegistry } from '../module/registry'
 import type { ModuleLogger, ModuleSpec } from '../module/types'
 import { Lifecycle } from './lifecycle'
@@ -11,8 +14,10 @@ import { resolveServices, type ServiceRegistry } from './resolve'
 export interface BootstrapConfig {
     roles: Roles
     modules: readonly ModuleSpec[]
-    /** Optional logger override. Defaults to a console-backed stub until `@app/logger` lands. */
+    /** Optional logger override. Defaults to a console-backed stub. Use `createLogger()` from `@iguir/core/logger/pino` for real apps. */
     logger?: ModuleLogger
+    /** Optional event bus override. Defaults to `InMemoryEventBus`. */
+    eventBus?: EventBus
 }
 
 /** What `bootstrap()` returns — every layer is reachable for tests + the CLI. */
@@ -22,6 +27,7 @@ export interface BootstrappedApp {
     services: ServiceRegistry
     modules: ModuleRegistry
     acl: AclRegistry
+    bus: EventBus
     logger: ModuleLogger
 }
 
@@ -55,14 +61,26 @@ export async function bootstrap(
     // 3. Resolve implementations in topo order; each factory sees its imports.
     const services = await resolveServices(modules, { logger })
 
-    // 4. Build the Hono app: global ACL middleware + module routes.
+    // 4. Event bus — register every module's events, then wire subscriptions.
+    const bus = config.eventBus ?? new InMemoryEventBus({ logger })
+    for (const m of modules.inBootOrder()) {
+        const events = m.events as DefinedEvents | undefined
+        if (events) bus.registerAll(events)
+    }
+    for (const m of modules.inBootOrder()) {
+        for (const [eventName, handler] of Object.entries(m.subscriptions ?? {})) {
+            bus.subscribe(eventName, handler)
+        }
+    }
+
+    // 5. Build the Hono app: global ACL middleware + module routes.
     const app = await mount({ registry: modules, services, acl, logger })
 
-    // 5. Lifecycle controller — runs onBoot now, runs onShutdown on signal.
+    // 6. Lifecycle controller — runs onBoot now, runs onShutdown on signal.
     const lifecycle = new Lifecycle({ registry: modules, services, logger })
     await lifecycle.boot()
 
-    return { app, lifecycle, services, modules, acl, logger }
+    return { app, lifecycle, services, modules, acl, bus, logger }
 }
 
 /**
