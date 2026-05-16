@@ -23,7 +23,7 @@ async function runCli(args: string[]): Promise<{
     return { code, stdout, stderr }
 }
 
-describe('app routes', () => {
+describe('iguir routes', () => {
     test('lists every declared route from the fixture app', async () => {
         const { code, stdout } = await runCli(['routes'])
         expect(code).toBe(0)

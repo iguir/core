@@ -22,7 +22,7 @@ async function runCli(args: string[]): Promise<{
     return { code: await proc.exited, stdout, stderr }
 }
 
-describe('app dev/start', () => {
+describe('iguir dev/start', () => {
     test('fails clearly when no entrypoint exists', async () => {
         // The fixture has no src/main.ts — confirm the message is actionable.
         const { code, stderr } = await runCli(['dev'])
@@ -32,7 +32,7 @@ describe('app dev/start', () => {
     })
 })
 
-describe('app help', () => {
+describe('iguir help', () => {
     test('lists all subcommands', async () => {
         const { code, stdout } = await runCli(['--help'])
         // citty exits 0 for --help.

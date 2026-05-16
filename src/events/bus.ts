@@ -43,7 +43,7 @@ export interface EventBus {
         payload: TDef extends EventDefinition ? EventPayload<TDef> : unknown,
     ): Promise<void>
 
-    /** Names of all registered events — useful for `app events` CLI. */
+    /** Names of all registered events — useful for `iguir events` CLI. */
     registeredEvents(): readonly string[]
 }
 

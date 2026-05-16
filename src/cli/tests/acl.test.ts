@@ -22,7 +22,7 @@ async function runCli(args: string[]): Promise<{
     return { code: await proc.exited, stdout, stderr }
 }
 
-describe('app acl', () => {
+describe('iguir acl', () => {
     test('default dump shows roles + permissions + summary', async () => {
         const { code, stdout } = await runCli(['acl'])
         expect(code).toBe(0)

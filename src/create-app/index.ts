@@ -1,7 +1,7 @@
 /**
  * `create-iguir` — scaffolds a new @iguir/core app (colocated in
  * `src/create-app/` until monorepo split). Exposes both a CLI entrypoint
- * (`src/create-app/bin.ts`) and a programmatic one used by `app new`.
+ * (`src/create-app/bin.ts`) and a programmatic one used by `iguir new`.
  */
 
 import { existsSync } from 'node:fs'

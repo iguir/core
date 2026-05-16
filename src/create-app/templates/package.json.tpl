@@ -8,9 +8,9 @@
         "start": "bun src/main.ts",
         "build": "bun build src/main.ts --target=bun --outdir=dist",
         "test": "bun test",
-        "routes": "bunx app routes",
-        "acl": "bunx app acl",
-        "openapi": "bunx app openapi --out openapi.json"
+        "routes": "bunx iguir routes",
+        "acl": "bunx iguir acl",
+        "openapi": "bunx iguir openapi --out openapi.json"
     },
     "dependencies": {
         "@iguir/core": "{{coreVersion}}",

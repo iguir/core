@@ -14,7 +14,7 @@ import {
 
 const main = defineCommand({
     meta: {
-        name: 'app',
+        name: 'iguir',
         version: '0.0.1',
         description: '@iguir/core — Hono-based meta-framework for Bun.',
     },

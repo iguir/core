@@ -103,7 +103,7 @@ export interface DefinedRoutes {
     readonly __kind: 'app:routes'
     /** Internal: assemble the Hono sub-app with the resolved services injected. */
     build(services: ServicesOf<readonly ModuleContract[]>): Hono | Promise<Hono>
-    /** Introspection: the routes declared, for `app routes` CLI + OpenAPI gen. */
+    /** Introspection: the routes declared, for `iguir routes` CLI + OpenAPI gen. */
     readonly declared: readonly DeclaredRoute[]
 }
 

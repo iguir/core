@@ -28,7 +28,7 @@ export default {
 
         // ── sibling packages (added as they land) ─────────────────────────
         'testing',       // @iguir/testing — testApp() helper
-        'cli',           // @iguir/cli — `app` binary
+        'cli',           // @iguir/cli — `iguir` binary
         'vite-plugin',   // @iguir/vite-plugin — file routes, JSX, islands
         'auth',          // @iguir/auth — first-party auth module
         'db',            // @iguir/db — Drizzle integration + auth stores

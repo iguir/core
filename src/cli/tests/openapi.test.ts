@@ -23,7 +23,7 @@ async function runCli(args: string[]): Promise<{
     return { code: await proc.exited, stdout, stderr }
 }
 
-describe('app openapi', () => {
+describe('iguir openapi', () => {
     test('prints a valid 3.1 document to stdout', async () => {
         const { code, stdout } = await runCli([
             'openapi',

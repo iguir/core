@@ -29,7 +29,7 @@ async function cleanup(name: string) {
     await rm(resolve(GEN_ROOT, name), { recursive: true, force: true })
 }
 
-describe('app generate module', () => {
+describe('iguir generate module', () => {
     afterEach(async () => {
         for (const n of ['billing', 'bad_name', 'pages_only', 'minimal']) {
             await cleanup(n)

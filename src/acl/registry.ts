@@ -110,7 +110,7 @@ export class AclRegistry {
     }
 
     // ------------------------------------------------------------------
-    // introspection (used by `app acl` CLI, admin UIs, tests)
+    // introspection (used by `iguir acl` CLI, admin UIs, tests)
     // ------------------------------------------------------------------
 
     permissionsForRole(role: string): readonly string[] {

@@ -54,7 +54,7 @@ Cross-module imports must only go through `*.contract.ts` files — Biome enforc
 ## Generating modules
 
 ```sh
-bunx app generate module billing
+bunx iguir generate module billing
 ```
 
 Adds a fully wired module under `src/modules/billing/`. Then add `billingModule` to `app.config.ts`.
