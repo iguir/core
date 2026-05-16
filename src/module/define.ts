@@ -72,6 +72,7 @@ function validate(spec: ModuleSpec): void {
         }
     }
 
+    const impl = (spec as { implementation?: unknown }).implementation
     if (spec.provides !== undefined) {
         if (!isContract(spec.provides)) {
             throw new Error(`${tag} provides must be the result of defineContract()`)
@@ -82,6 +83,18 @@ function validate(spec: ModuleSpec): void {
                     `module name "${name}"`,
             )
         }
+        if (typeof impl !== 'function') {
+            throw new Error(
+                `${tag} provides a contract but is missing \`implementation\`. ` +
+                    'Add an implementation factory: ' +
+                    '`implementation: ({ services, logger }) => ({ /* methods */ })`',
+            )
+        }
+    } else if (impl !== undefined) {
+        throw new Error(
+            `${tag} declares \`implementation\` but does not \`provides\` a contract. ` +
+                'Either remove `implementation` or add `provides`.',
+        )
     }
 
     if (spec.acl !== undefined && spec.acl.module !== name) {

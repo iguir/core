@@ -14,13 +14,22 @@ const commentsContract = defineContract('comments', {
     list: { input: z.void(), output: z.array(z.any()) },
 })
 
+const usersImpl = () => ({ findById: async () => ({}) })
+const postsImpl = () => ({ list: async () => [] })
+const commentsImpl = () => ({ list: async () => [] })
+
 describe('ModuleRegistry', () => {
     test('indexes modules by name + lists in boot order', () => {
-        const users = defineModule({ name: 'users', provides: usersContract })
+        const users = defineModule({
+            name: 'users',
+            provides: usersContract,
+            implementation: usersImpl,
+        })
         const posts = defineModule({
             name: 'posts',
             imports: [usersContract],
             provides: postsContract,
+            implementation: postsImpl,
         })
         const reg = new ModuleRegistry([posts, users])
         expect(reg.has('users')).toBe(true)
@@ -49,6 +58,7 @@ describe('ModuleRegistry', () => {
             name: 'posts',
             imports: [usersContract],
             provides: postsContract,
+            implementation: postsImpl,
         })
         expect(() => new ModuleRegistry([posts])).toThrow(
             /no module provides it/,
@@ -60,33 +70,45 @@ describe('ModuleRegistry', () => {
             name: 'posts',
             imports: [commentsContract],
             provides: postsContract,
+            implementation: postsImpl,
         })
         const comments = defineModule({
             name: 'comments',
             imports: [postsContract],
             provides: commentsContract,
+            implementation: commentsImpl,
         })
         expect(() => new ModuleRegistry([posts, comments])).toThrow(/cycle detected/)
     })
 
     test('providerOf resolves contracts to their owning module', () => {
-        const users = defineModule({ name: 'users', provides: usersContract })
+        const users = defineModule({
+            name: 'users',
+            provides: usersContract,
+            implementation: usersImpl,
+        })
         const reg = new ModuleRegistry([users])
         expect(reg.providerOf('users')?.name).toBe('users')
         expect(reg.providerOf('unknown')).toBeUndefined()
     })
 
     test('boot order is stable + deterministic', () => {
-        const users = defineModule({ name: 'users', provides: usersContract })
+        const users = defineModule({
+            name: 'users',
+            provides: usersContract,
+            implementation: usersImpl,
+        })
         const posts = defineModule({
             name: 'posts',
             imports: [usersContract],
             provides: postsContract,
+            implementation: postsImpl,
         })
         const comments = defineModule({
             name: 'comments',
             imports: [postsContract, usersContract],
             provides: commentsContract,
+            implementation: commentsImpl,
         })
         const reg = new ModuleRegistry([comments, posts, users])
         expect(reg.inBootOrder().map((m) => m.name)).toEqual([

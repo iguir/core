@@ -12,6 +12,9 @@ const postsContract = defineContract('posts', {
     list: { input: z.void(), output: z.array(z.string()) },
 })
 
+const postsImpl = () => ({ list: async () => [] })
+const usersImpl = () => ({ findById: async () => 'user' })
+
 describe('defineModule', () => {
     test('minimal module with just a name is valid + frozen', () => {
         const m = defineModule({ name: 'posts' })
@@ -52,8 +55,25 @@ describe('defineModule', () => {
             defineModule({
                 name: 'posts',
                 provides: usersContract,
+                implementation: usersImpl,
             }),
         ).toThrow(/must match module name/)
+    })
+
+    test('provides requires an implementation factory', () => {
+        expect(() =>
+            defineModule({ name: 'posts', provides: postsContract }),
+        ).toThrow(/missing `implementation`/)
+    })
+
+    test('implementation without provides is rejected', () => {
+        expect(() =>
+            defineModule({
+                name: 'posts',
+                // @ts-expect-error — implementation requires provides
+                implementation: postsImpl,
+            }),
+        ).toThrow(/does not `provides`/)
     })
 
     test('acl.module must match module name', () => {

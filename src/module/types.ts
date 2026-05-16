@@ -1,3 +1,4 @@
+import type { z } from 'zod'
 import type { AclSpec } from '../acl/types'
 import type { ModuleContract } from './contract'
 
@@ -50,12 +51,54 @@ export type SubscriptionHandler<TPayload = unknown> = (
 /** Map of event name → handler for a module's subscriptions. */
 export type ModuleSubscriptions = Record<string, SubscriptionHandler>
 
-/** Context delivered to `onBoot`. Built once at bootstrap, never mutated. */
-export interface ModuleBootContext {
+/**
+ * The runtime shape of a contract: each method becomes an async function whose
+ * input/output types are inferred from the contract's Zod schemas. This is what
+ * a module's `implementation` factory must return, and what callers see when
+ * they reach into `ctx.services.<name>`.
+ */
+export type Implementation<TContract extends ModuleContract> = {
+    [K in keyof TContract['methods']]: (
+        input: z.infer<TContract['methods'][K]['input']>,
+    ) =>
+        | z.infer<TContract['methods'][K]['output']>
+        | Promise<z.infer<TContract['methods'][K]['output']>>
+}
+
+/**
+ * Services map seen by an implementation factory or `onBoot`. Keyed by
+ * contract name, typed against each imported contract.
+ */
+export type ServicesOf<TImports extends readonly ModuleContract[]> = {
+    [TContract in TImports[number] as TContract['name']]: Implementation<TContract>
+}
+
+/** Context passed to the `implementation` factory. */
+export interface ImplementationContext<
+    TImports extends readonly ModuleContract[] = readonly ModuleContract[],
+> {
     /** Logger pre-bound with `{ module: <name> }`. */
     logger: ModuleLogger
-    /** Resolved providers — keyed by contract name. */
-    providers: Readonly<Record<string, ModuleContract['methods']>>
+    /** Resolved services for every contract this module imports. */
+    services: ServicesOf<TImports>
+}
+
+/** Factory that builds a module's runtime implementation. */
+export type ImplementationFactory<
+    TProvides extends ModuleContract,
+    TImports extends readonly ModuleContract[],
+> = (
+    ctx: ImplementationContext<TImports>,
+) => Implementation<TProvides> | Promise<Implementation<TProvides>>
+
+/** Context delivered to `onBoot`. Built once at bootstrap, never mutated. */
+export interface ModuleBootContext<
+    TImports extends readonly ModuleContract[] = readonly ModuleContract[],
+> {
+    /** Logger pre-bound with `{ module: <name> }`. */
+    logger: ModuleLogger
+    /** Resolved services for every contract this module imports. */
+    services: ServicesOf<TImports>
 }
 
 /** Validated module definition stored in the registry. */
@@ -67,11 +110,20 @@ export interface ModuleSpec<
     readonly name: TName
     readonly imports?: TImports
     readonly provides?: TProvides
+    /**
+     * Required when `provides` is set: the factory that builds the runtime
+     * implementation of this module's contract. Called once at bootstrap, in
+     * dependency-first order, with `logger` and the resolved `services` for
+     * every contract this module imports.
+     */
+    readonly implementation?: TProvides extends ModuleContract
+        ? ImplementationFactory<TProvides, TImports>
+        : never
     readonly acl?: AclSpec
     readonly events?: ModuleEvents
     readonly routes?: ModuleApiRoutes
     readonly pages?: ModulePages
     readonly subscriptions?: ModuleSubscriptions
-    readonly onBoot?: (ctx: ModuleBootContext) => void | Promise<void>
+    readonly onBoot?: (ctx: ModuleBootContext<TImports>) => void | Promise<void>
     readonly onShutdown?: () => void | Promise<void>
 }
