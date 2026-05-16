@@ -1,8 +1,11 @@
 import { Hono } from 'hono'
 import type { AclRegistry } from '../acl/registry'
 import { aclContext } from '../acl/middleware'
+import { createErrorHandler } from '../errors/handler'
+import type { ModuleContract } from '../module/contract'
 import type { ModuleRegistry } from '../module/registry'
-import type { ModuleLogger } from '../module/types'
+import type { ModuleLogger, ServicesOf } from '../module/types'
+import type { DefinedRoutes } from '../routing/code'
 import type { ServiceRegistry } from './resolve'
 
 /** Dependencies needed to assemble the Hono app. */
@@ -15,34 +18,22 @@ export interface MountDeps {
 
 /**
  * Build the Hono application:
- *   1. Install the global ACL context middleware (every request gets `c.var.can`).
- *   2. For each module, mount its API routes under the declared prefix.
- *   3. Register subscriptions on the event bus.
+ *   1. Register the global error handler (AppError / ZodError / HTTPException).
+ *   2. Install the global ACL context middleware (`c.var.can` per request).
+ *   3. Mount each module's API routes under its declared prefix.
  *
- * Returns the assembled Hono instance, ready for `serve()` to take over.
- *
- * NOTE: Step 4 (routing) and Step 5 (events) of the build order own the
- *       concrete `defineRoutes` / event-bus wiring. Until those land, this
- *       function fails loudly if a module declares routes, subscriptions, or
- *       pages — there is no quiet "we'll figure it out later" path.
+ * Subscriptions (Step 5 — events) and pages (Step 7 — file routing) are still
+ * detected and rejected with an actionable error until those layers land.
  */
-export function mount(deps: MountDeps): Hono {
-    const { registry, acl, logger } = deps
+export async function mount(deps: MountDeps): Promise<Hono> {
+    const { registry, services, acl, logger } = deps
     const app = new Hono()
 
-    // 1. Per-request ACL checker. The app is expected to install its auth
-    //    middleware separately; `aclContext` just reads `c.var.user`.
+    app.onError(createErrorHandler({ logger }))
+
     app.use('*', aclContext({ registry: acl }))
 
-    // 2. Detect modules that declare features the bootstrap can't wire yet.
     for (const m of registry.inBootOrder()) {
-        if (m.routes) {
-            throw new Error(
-                `[module:${m.name}] declares \`routes\` but the routing layer ` +
-                    'is not yet wired into bootstrap. This will land in Step 4 ' +
-                    '(src/routing/code.ts).',
-            )
-        }
         if (m.subscriptions) {
             throw new Error(
                 `[module:${m.name}] declares \`subscriptions\` but the event bus ` +
@@ -57,11 +48,27 @@ export function mount(deps: MountDeps): Hono {
                     'in Step 7 (src/routing/file.ts, src/jsx/*).',
             )
         }
+
+        if (!m.routes) continue
+
+        const routes = m.routes.handler as unknown as DefinedRoutes
+        if (routes.__kind !== 'app:routes' || typeof routes.build !== 'function') {
+            throw new Error(
+                `[module:${m.name}] routes.handler must be the result of defineRoutes()`,
+            )
+        }
+
+        const imports = (m.imports as readonly ModuleContract[] | undefined) ?? []
+        const picked = services.pickFor(imports) as unknown as ServicesOf<
+            readonly ModuleContract[]
+        >
+        const sub = await routes.build(picked)
+        app.route(m.routes.prefix ?? '/', sub)
     }
 
     logger.debug(
         { modules: registry.allModuleNames() },
-        'mount: ACL middleware installed; routes/events/pages pending Steps 4-7',
+        'mount: ACL + error handler installed; routes mounted',
     )
 
     return app

@@ -55,8 +55,8 @@ export async function bootstrap(
     // 3. Resolve implementations in topo order; each factory sees its imports.
     const services = await resolveServices(modules, { logger })
 
-    // 4. Build the Hono app: global ACL middleware + (eventually) routes.
-    const app = mount({ registry: modules, services, acl, logger })
+    // 4. Build the Hono app: global ACL middleware + module routes.
+    const app = await mount({ registry: modules, services, acl, logger })
 
     // 5. Lifecycle controller — runs onBoot now, runs onShutdown on signal.
     const lifecycle = new Lifecycle({ registry: modules, services, logger })
