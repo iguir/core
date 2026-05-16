@@ -2,6 +2,7 @@
 import { defineCommand, runMain } from 'citty'
 import { aclCommand } from './commands/acl'
 import { generateCommand } from './commands/generate'
+import { newCommand } from './commands/new'
 import { openapiCommand } from './commands/openapi'
 import { routesCommand } from './commands/routes'
 import {
@@ -18,6 +19,7 @@ const main = defineCommand({
         description: '@iguir/core — Hono-based meta-framework for Bun.',
     },
     subCommands: {
+        new: newCommand,
         routes: routesCommand,
         acl: aclCommand,
         openapi: openapiCommand,

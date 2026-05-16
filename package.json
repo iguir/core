@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "module": "src/index.ts",
   "type": "module",
+  "bin": {
+    "app": "./src/cli/main.ts",
+    "create-iguir": "./src/create-app/bin.ts"
+  },
   "scripts": {
     "prepare": "husky",
     "commit": "cz",
