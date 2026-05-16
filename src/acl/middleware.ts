@@ -6,9 +6,14 @@ import type { AclSubject } from './types'
 /**
  * Minimum shape every authenticated user must satisfy for ACL resolution.
  * The first-party `@app/auth` module (and any custom auth) is free to augment
- * this interface via declaration merging to add `id`, `email`, `roles`, etc.
+ * this interface via declaration merging to add fields like `email` etc.
+ *
+ * `id` is optional at the ACL layer — `aclContext` only needs `roles` — but
+ * auth modules will always set it, and `/me`-style endpoints rely on it.
  */
-export interface AclUser extends AclSubject {}
+export interface AclUser extends AclSubject {
+    id?: string
+}
 
 /**
  * Hono Context variables added by the ACL layer.

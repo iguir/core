@@ -77,7 +77,7 @@ export async function bootstrap(
     const app = await mount({ registry: modules, services, acl, logger })
 
     // 6. Lifecycle controller — runs onBoot now, runs onShutdown on signal.
-    const lifecycle = new Lifecycle({ registry: modules, services, logger })
+    const lifecycle = new Lifecycle({ registry: modules, services, logger, bus })
     await lifecycle.boot()
 
     return { app, lifecycle, services, modules, acl, bus, logger }

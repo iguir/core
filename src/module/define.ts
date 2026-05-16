@@ -147,6 +147,17 @@ function validate(spec: ModuleSpec): void {
         }
     }
 
+    if (spec.globalMiddleware !== undefined) {
+        if (!Array.isArray(spec.globalMiddleware)) {
+            throw new Error(`${tag} globalMiddleware must be an array of MiddlewareHandler`)
+        }
+        for (const mw of spec.globalMiddleware) {
+            if (typeof mw !== 'function') {
+                throw new Error(`${tag} globalMiddleware[*] must be a function`)
+            }
+        }
+    }
+
     if (spec.onBoot !== undefined && typeof spec.onBoot !== 'function') {
         throw new Error(`${tag} onBoot must be a function`)
     }

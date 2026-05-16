@@ -1,3 +1,4 @@
+import type { MiddlewareHandler } from 'hono'
 import type { z } from 'zod'
 import type { AclSpec } from '../acl/types'
 import type { ModuleContract } from './contract'
@@ -91,6 +92,19 @@ export type ImplementationFactory<
     ctx: ImplementationContext<TImports>,
 ) => Implementation<TProvides> | Promise<Implementation<TProvides>>
 
+/**
+ * Opaque event-bus marker type. The concrete `EventBus` interface lives in
+ * `src/events/bus.ts`; module-layer types only need to thread it through.
+ * Re-typed here to avoid a circular import with the events package.
+ */
+export interface ModuleBus {
+    publish(event: unknown, payload: unknown): Promise<void>
+    subscribe(event: unknown, handler: (payload: unknown) => unknown): () => void
+    register(definition: unknown): void
+    registerAll(defined: unknown): void
+    registeredEvents(): readonly string[]
+}
+
 /** Context delivered to `onBoot`. Built once at bootstrap, never mutated. */
 export interface ModuleBootContext<
     TImports extends readonly ModuleContract[] = readonly ModuleContract[],
@@ -99,6 +113,8 @@ export interface ModuleBootContext<
     logger: ModuleLogger
     /** Resolved services for every contract this module imports. */
     services: ServicesOf<TImports>
+    /** The live event bus the rest of the app is using. */
+    bus: ModuleBus
 }
 
 /** Validated module definition stored in the registry. */
@@ -123,6 +139,14 @@ export interface ModuleSpec<
     readonly events?: ModuleEvents
     readonly routes?: ModuleApiRoutes
     readonly pages?: ModulePages
+    /**
+     * Middleware run by `bootstrap()` BEFORE `aclContext` and before any
+     * module routes are mounted. The canonical use case is session/auth
+     * middleware that populates `c.var.user` — `aclContext` then builds the
+     * checker from that user. Use sparingly: most modules want route-level
+     * middleware via `defineRoutes`, not global.
+     */
+    readonly globalMiddleware?: readonly MiddlewareHandler[]
     readonly subscriptions?: ModuleSubscriptions
     readonly onBoot?: (ctx: ModuleBootContext<TImports>) => void | Promise<void>
     readonly onShutdown?: () => void | Promise<void>

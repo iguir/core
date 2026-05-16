@@ -5,6 +5,7 @@ import { defineModule } from '../../module/define'
 import { ModuleRegistry } from '../../module/registry'
 import { resolveServices } from '../resolve'
 import { Lifecycle } from '../lifecycle'
+import { InMemoryEventBus } from '../../events/memory'
 import type { ModuleLogger } from '../../module/types'
 
 function makeLogger(): ModuleLogger {
@@ -59,7 +60,7 @@ describe('Lifecycle', () => {
         const registry = new ModuleRegistry([posts, users])
         const logger = makeLogger()
         const services = await resolveServices(registry, { logger })
-        const lifecycle = new Lifecycle({ registry, services, logger })
+        const lifecycle = new Lifecycle({ registry, services, logger, bus: new InMemoryEventBus({ logger }) })
 
         await lifecycle.boot()
         expect(events).toEqual(['boot:users', 'boot:posts'])
@@ -107,7 +108,7 @@ describe('Lifecycle', () => {
         const registry = new ModuleRegistry([users, posts])
         const logger = makeLogger()
         const services = await resolveServices(registry, { logger })
-        const lifecycle = new Lifecycle({ registry, services, logger })
+        const lifecycle = new Lifecycle({ registry, services, logger, bus: new InMemoryEventBus({ logger }) })
 
         await expect(lifecycle.boot()).rejects.toThrow(/\[module:posts\].*boom/)
         // posts did NOT complete onBoot, so its onShutdown must NOT run.
@@ -127,7 +128,7 @@ describe('Lifecycle', () => {
         const registry = new ModuleRegistry([m])
         const logger = makeLogger()
         const services = await resolveServices(registry, { logger })
-        const lifecycle = new Lifecycle({ registry, services, logger })
+        const lifecycle = new Lifecycle({ registry, services, logger, bus: new InMemoryEventBus({ logger }) })
         await lifecycle.boot()
         await lifecycle.shutdown()
         await lifecycle.shutdown()
@@ -146,7 +147,7 @@ describe('Lifecycle', () => {
         const registry = new ModuleRegistry([m])
         const logger = makeLogger()
         const services = await resolveServices(registry, { logger })
-        const lifecycle = new Lifecycle({ registry, services, logger })
+        const lifecycle = new Lifecycle({ registry, services, logger, bus: new InMemoryEventBus({ logger }) })
         await lifecycle.boot()
         const report = await lifecycle.shutdown()
         expect(report.completed).toEqual([])

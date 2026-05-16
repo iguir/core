@@ -31,6 +31,15 @@ export async function mount(deps: MountDeps): Promise<Hono> {
 
     app.onError(createErrorHandler({ logger }))
 
+    // Run each module's `globalMiddleware` BEFORE aclContext so that, for
+    // example, an auth middleware can populate `c.var.user` and the checker
+    // sees the resolved subject.
+    for (const m of registry.inBootOrder()) {
+        for (const mw of m.globalMiddleware ?? []) {
+            app.use('*', mw)
+        }
+    }
+
     app.use('*', aclContext({ registry: acl }))
 
     for (const m of registry.inBootOrder()) {

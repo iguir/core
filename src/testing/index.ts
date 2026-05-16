@@ -144,6 +144,16 @@ export async function testApp(options: TestAppOptions): Promise<TestApp> {
 
     const app = new Hono()
     app.onError(createErrorHandler({ logger }))
+
+    // Modules' global middleware (auth, etc.) — installed before the test
+    // harness's user injector so the injector can override authenticated state
+    // when a per-request `user` is supplied.
+    for (const m of registry.inBootOrder()) {
+        for (const mw of m.globalMiddleware ?? []) {
+            app.use('*', mw)
+        }
+    }
+
     // User injector — reads the `x-test-user` header (set by the harness's
     // `.request(...)`) and sets `c.var.user`. We deliberately do NOT fall back
     // to a stored baseline here; the harness controls the header, so any
@@ -168,7 +178,7 @@ export async function testApp(options: TestAppOptions): Promise<TestApp> {
         app.route(m.routes.prefix ?? '/', sub)
     }
 
-    const lifecycle = new Lifecycle({ registry, services, logger })
+    const lifecycle = new Lifecycle({ registry, services, logger, bus })
     await lifecycle.boot()
 
     const harness = createHarness({

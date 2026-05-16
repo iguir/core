@@ -1,6 +1,6 @@
 import type { ModuleRegistry } from '../module/registry'
 import type { ModuleContract } from '../module/contract'
-import type { ModuleLogger, ModuleSpec } from '../module/types'
+import type { ModuleBus, ModuleLogger, ModuleSpec } from '../module/types'
 import type { ServiceRegistry } from './resolve'
 
 /** Deps the lifecycle controller needs to run module hooks. */
@@ -8,6 +8,7 @@ export interface LifecycleDeps {
     registry: ModuleRegistry
     services: ServiceRegistry
     logger: ModuleLogger
+    bus: ModuleBus
 }
 
 /** Result of a shutdown pass. Errors are collected, never thrown — shutdown must finish. */
@@ -36,7 +37,7 @@ export class Lifecycle {
      * re-thrown so the caller can decide to crash.
      */
     async boot(): Promise<void> {
-        const { registry, services, logger } = this.deps
+        const { registry, services, logger, bus } = this.deps
 
         for (const m of registry.inBootOrder()) {
             const moduleLogger = logger.child({ module: m.name })
@@ -47,6 +48,7 @@ export class Lifecycle {
                         services: services.pickFor(
                             (m.imports as readonly ModuleContract[] | undefined) ?? [],
                         ),
+                        bus,
                     })
                 }
                 // Track every module we got past — even hookless ones — so that
