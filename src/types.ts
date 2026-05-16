@@ -1,47 +1,36 @@
-import type { TLSOptions } from "bun";
-/**
- * AppConfig defines the configuration options for the application.
- * It includes properties for the port, environment, and modules.
- * This interface can be extended to include additional configuration options as needed.
- */
-export interface AppConfig {
+import type { TLSOptions } from 'bun'
+import type { Roles } from './acl/types'
+import type { EventBus } from './events/bus'
+import type { ModuleLogger, ModuleSpec } from './module/types'
+
+/** Server-side networking configuration for `Bun.serve`. */
+export interface ServerConfig {
+    port: number
     /**
-     * The environment in which the application is running.
-     * Can be 'development', 'production', or 'test'.
-     * Default is 'development'.
+     * Bind address. `'0.0.0.0'` exposes the server outside the host (useful
+     * for containers and LAN dev); `'localhost'` / `'127.0.0.1'` are loopback-only.
      */
-    environment: 'development' | 'production' | 'test';
-
-
-    /**
-     * An array of modules that the application will use.
-     * Each module can be an object with its own configuration.
-     * Default is an empty array.
-     */
-    modules: Array<{}>;
-
-    roles: [],
-
-    /**
-     * Sever configuration options, including port, hostName, and TLS settings.
-     */
-    server: ServerConfig;
+    hostName?: '0.0.0.0' | 'localhost' | '127.0.0.1'
+    /** TLS settings — when set, the server runs HTTPS. */
+    tls?: TLSOptions
 }
 
-
-interface ServerConfig {
-    port: number;
-
-    /**
-    * A flag to indicate whether to run the server in host mode.
-    * If true, the server will be accessible from outside the machine.
-    * This is useful for development and testing.
-    */
-    hostName?: '0.0.0.0' | 'localhost' | '127.0.0.1';
-
-    /**
-     * TLS configuration for the server. 
-     * If provided, the server will run in HTTPS mode.
-     */
-    tls?: TLSOptions;
+/**
+ * The full application configuration produced by `defineConfig()` and
+ * consumed by `bootstrap()` + `serve()`. Wider than `BootstrapConfig` so the
+ * CLI + `serve()` can read everything from one source of truth.
+ */
+export interface AppConfig {
+    /** 'development' | 'production' | 'test'. Defaults to 'development'. */
+    environment: 'development' | 'production' | 'test'
+    /** App-wide role registry — usually the result of `defineRoles({...})`. */
+    roles: Roles
+    /** Every module the app should mount. */
+    modules: readonly ModuleSpec[]
+    /** Server bind / TLS settings. */
+    server: ServerConfig
+    /** Optional logger override (defaults to console-backed in bootstrap). */
+    logger?: ModuleLogger
+    /** Optional event-bus override (defaults to in-memory). */
+    eventBus?: EventBus
 }
