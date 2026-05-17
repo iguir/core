@@ -10,7 +10,11 @@
         "test": "bun test",
         "routes": "bunx iguir routes",
         "acl": "bunx iguir acl",
-        "openapi": "bunx iguir openapi --out openapi.json"
+        "openapi": "bunx iguir openapi --out openapi.json",
+        "db:push": "drizzle-kit push",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:studio": "drizzle-kit studio"
     },
     "dependencies": {
         "@iguir/core": "{{coreVersion}}",
@@ -22,6 +26,7 @@
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",
         "@types/bun": "latest",
+        "drizzle-kit": "^0.32.2",
         "typescript": "^5",
         "vite": "^7.1.13"
     }

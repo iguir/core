@@ -6,16 +6,19 @@
 
 ```ts
 import { describe, expect, test } from 'bun:test'
-import { testApp } from '@iguir/core/testing'
+import { testApp } from '@iguir/core'
 import { roles } from '../src/app/acl'
-import { auth } from '../src/app/auth'
-import { postsModule } from '../src/modules/posts/posts.module'
+import { authModule } from '../src/modules/auth/auth.module'
 
-test('public health is public', async () => {
-    const app = await testApp({ roles, modules: [auth, postsModule] })
-    const { status, body } = await app.json<{ ok: boolean }>('/api/posts/health')
-    expect(status).toBe(200)
-    expect(body.ok).toBe(true)
+test('register → me round-trip', async () => {
+    const app = await testApp({ roles, modules: [authModule] })
+
+    const register = await app.request('/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: 'a@b.c', password: 'longenoughpw' }),
+    })
+    expect(register.status).toBe(201)
     await app.shutdown()
 })
 ```

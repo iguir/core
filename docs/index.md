@@ -50,7 +50,7 @@ We're explicit about what we **don't** support:
 - **Not a forked Hono.** The Blitz/Next mistake killed Blitz.
 - **No filesystem auto-discovery of modules.** Magic discovery breaks at scale.
 - **No custom bundler or dev server.** Meteor's death.
-- **No baked-in auth module.** Auth is too app-specific. We give you `c.var.user` + the ACL layer and stay out of the way.
+- **No baked-in auth module in `@iguir/core`.** Auth is too app-specific (OAuth, JWT, WebAuthn, custom IdPs). The framework just requires that something populate `c.var.user` before `aclContext` runs. The `create-iguir` scaffold *does* generate a starter cookie+password auth module into your project — but it's just code you own and can rewrite.
 - **No real-time, queues, admin UI, or cron in v1.** Stay focused.
 
 If any of that is a dealbreaker, pick a different tool — and that's fine.

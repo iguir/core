@@ -1,9 +1,9 @@
 import { defineConfig } from '@iguir/core'
 import { roles } from './src/app/acl'
-import { postsModule } from './src/modules/posts/posts.module'
+import { authModule } from './src/modules/auth/auth.module'
 
 export default defineConfig({
     roles,
-    modules: [postsModule],
+    modules: [authModule],
     server: { port: 3000 },
 })

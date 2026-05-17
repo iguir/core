@@ -3,8 +3,8 @@ dist/
 *.log
 .env
 .env.local
-data.db
-data.db-journal
-data.db-wal
-data.db-shm
 openapi.json
+.DS_Store
+
+# Vite build output (when using the JSX layer)
+.vite/

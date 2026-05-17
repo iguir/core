@@ -26,30 +26,39 @@ describe('createApp', () => {
         expect(files.length).toBeGreaterThan(10)
 
         const expected = [
+            // Toolchain
             'package.json',
             'tsconfig.json',
             'biome.json',
             'bunfig.toml',
             '.gitignore',
             'README.md',
+            'docker-compose.yml',
+            'drizzle.config.ts',
+            'vite.config.ts',
+            // App entry
             'app.config.ts',
             'src/main.ts',
+            // App-wide singletons
             'src/app/acl.ts',
             'src/app/env.ts',
-            'src/modules/posts/posts.module.ts',
-            'src/modules/posts/posts.contract.ts',
-            'src/modules/posts/posts.acl.ts',
-            'src/modules/posts/routes/api.ts',
-            'src/modules/posts/services/index.ts',
-            'src/modules/posts/tests/posts.test.ts',
-            'vite.config.ts',
+            'src/app/db.ts',
+            'src/app/schema.ts',
+            // Default auth module
+            'src/modules/auth/auth.module.ts',
+            'src/modules/auth/auth.contract.ts',
+            'src/modules/auth/auth.acl.ts',
+            'src/modules/auth/events.ts',
+            'src/modules/auth/middleware.ts',
+            'src/modules/auth/routes/api.ts',
+            'src/modules/auth/services/index.ts',
+            'src/modules/auth/tests/auth.test.ts',
         ]
-        // Files that must NOT be present — auth + db are intentionally not
-        // bundled into the starter so users pick their own strategy.
-        const forbidden = ['src/app/auth.ts', 'src/app/db.ts', 'tests/auth.test.ts']
-        for (const rel of forbidden) {
-            expect(existsSync(join(rootDir, rel))).toBe(false)
+        for (const rel of expected) {
+            expect(existsSync(join(rootDir, rel))).toBe(true)
         }
+        // Posts module is no longer in the scaffold — auth replaces it.
+        expect(existsSync(join(rootDir, 'src/modules/posts'))).toBe(false)
         for (const rel of expected) {
             expect(existsSync(join(rootDir, rel))).toBe(true)
         }

@@ -58,25 +58,30 @@ A scaffolded app looks like this:
 
 ```
 my-app/
+├── docker-compose.yml           # local Postgres on :5432
+├── drizzle.config.ts            # drizzle-kit settings
 ├── app.config.ts                # defineConfig({ roles, modules, server })
 ├── vite.config.ts               # @iguir/core/vite-plugin
 ├── src/
 │   ├── main.ts                  # bootstrap + serve
 │   ├── app/                     # app-wide singletons (not a module)
 │   │   ├── acl.ts               # defineRoles({...})
-│   │   └── env.ts               # validated env via defineEnv
+│   │   ├── env.ts               # validated env (DATABASE_URL, session config, …)
+│   │   ├── db.ts                # Drizzle Postgres client
+│   │   └── schema.ts            # all Drizzle tables — modules read from here
 │   └── modules/
-│       └── posts/
-│           ├── posts.module.ts
-│           ├── posts.contract.ts
-│           ├── posts.acl.ts
+│       └── auth/                # cookie + Bun.password starter — owned by you
+│           ├── auth.module.ts
+│           ├── auth.contract.ts
+│           ├── auth.acl.ts
+│           ├── events.ts
+│           ├── middleware.ts
 │           ├── routes/api.ts
-│           ├── services/
+│           ├── services/        # Drizzle-backed user + session ops
 │           └── tests/
-└── tests/                       # cross-module end-to-end tests
 ```
 
-The starter ships in-memory only. Add a database (`createDb` from `@iguir/core` — see the [Database guide](./db)) and your own auth strategy when you need them — neither is baked in.
+The starter ships with **Postgres + Drizzle** wired up out of the box (via `docker compose up -d`) and a working cookie-session auth module in `src/modules/auth/`. Everything is regular code in your repo — swap stores, change to OAuth, replace the schema, whatever you need. The framework doesn't own any of it.
 
 The `iguir` CLI command is installed as a bin. From your project:
 
