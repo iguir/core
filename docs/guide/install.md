@@ -66,4 +66,35 @@ The `iguir` CLI command is installed as a bin. From your project:
 bunx iguir --help
 ```
 
+## Installing the CLI globally
+
+If you want `iguir` available on `$PATH` system-wide (no `bunx` prefix), run from inside the framework checkout:
+
+```sh
+bun run cli:link            # installs the iguir + create-iguir binaries globally
+bun run cli:unlink          # remove them
+```
+
+After `cli:link`:
+
+```sh
+$ which iguir
+/Users/me/.bun/bin/iguir
+
+$ iguir --version
+0.0.1
+```
+
+The `cli:link` script lives inside `@iguir/core`'s `package.json` and is the recommended local-dev path because the binary picks up changes to the source files immediately — no rebuild needed.
+
+### Standalone binary (optional)
+
+For distribution to machines that don't have Bun, compile to a self-contained executable:
+
+```sh
+bun run cli:compile         # writes ./bin/iguir and ./bin/create-iguir
+```
+
+The binaries embed the Bun runtime (~60 MB each) and run on any compatible OS without `bun install`. On first launch on macOS you may need to allow them via System Settings → Privacy & Security.
+
 → Next: [Quick start](./quick-start).
