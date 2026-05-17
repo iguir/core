@@ -15,14 +15,13 @@ bun install
 `app.config.ts` is the entry the CLI + the bootstrapper both read:
 
 ```ts
-import { defineConfig } from '@iguir/core/config'
+import { defineConfig } from '@iguir/core'
 import { roles } from './src/app/acl'
-import { auth } from './src/app/auth'
 import { postsModule } from './src/modules/posts/posts.module'
 
 export default defineConfig({
     roles,
-    modules: [auth, postsModule],
+    modules: [postsModule],
     server: { port: 3000 },
 })
 ```
@@ -31,7 +30,7 @@ Roles are declared once, app-wide:
 
 ```ts
 // src/app/acl.ts
-import { defineRoles } from '@iguir/core/acl/roles'
+import { defineRoles } from '@iguir/core'
 
 export const roles = defineRoles({
     admin: { description: 'Full access', system: true },
@@ -86,13 +85,7 @@ r.post(
 bun dev               # bun --hot + vite (when vite.config.ts exists)
 ```
 
-Open `http://localhost:3000/api/posts/health`. Then:
-
-```sh
-curl -X POST http://localhost:3000/auth/register \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com","password":"longenoughpw"}'
-```
+Open `http://localhost:3000/api/posts/health`. ACL-gated routes (everything else) return 401 until you wire your own auth middleware — see [ACL & permissions](./acl) for the integration point.
 
 ## Inspect
 

@@ -47,7 +47,3 @@ export function createDb<
 export { createSqliteDb, type SqliteDb } from './sqlite'
 export { createPostgresDb, type PostgresDb } from './postgres'
 export type { DbConfig, DbDriver, SqliteDbConfig, PostgresDbConfig } from './types'
-
-// Auth stores — re-exported so apps can `import { DrizzleUserStore } from '@iguir/core/db'`.
-export { DrizzleUserStore, DrizzleSessionStore } from './auth-stores'
-export { authSchema, users, sessions, createAuthTablesIfMissing } from './schema/auth'

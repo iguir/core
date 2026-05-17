@@ -37,7 +37,6 @@ import {
     defineAcl,
     defineEvents,
     defineContract,
-    createAuthModule,
     createSqliteDb,
     testApp,
 } from '@iguir/core'
@@ -65,9 +64,7 @@ my-app/
 │   ├── main.ts                  # bootstrap + serve
 │   ├── app/                     # app-wide singletons (not a module)
 │   │   ├── acl.ts               # defineRoles({...})
-│   │   ├── env.ts               # validated env via defineEnv
-│   │   ├── db.ts                # createDb + auth schema
-│   │   └── auth.ts              # createAuthModule(...)
+│   │   └── env.ts               # validated env via defineEnv
 │   └── modules/
 │       └── posts/
 │           ├── posts.module.ts
@@ -78,6 +75,8 @@ my-app/
 │           └── tests/
 └── tests/                       # cross-module end-to-end tests
 ```
+
+The starter ships in-memory only. Add a database (`createDb` from `@iguir/core` — see the [Database guide](./db)) and your own auth strategy when you need them — neither is baked in.
 
 The `iguir` CLI command is installed as a bin. From your project:
 

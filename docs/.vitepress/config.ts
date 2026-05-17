@@ -40,9 +40,8 @@ export default defineConfig({
                     ],
                 },
                 {
-                    text: 'Built-in modules',
+                    text: 'Persistence',
                     items: [
-                        { text: 'Auth', link: '/guide/auth' },
                         { text: 'Database (Drizzle)', link: '/guide/db' },
                     ],
                 },

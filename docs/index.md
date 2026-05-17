@@ -24,6 +24,8 @@ features:
       details: testApp() spins up the whole stack in-memory. No HTTP server needed.
     - title: Bun-native
       details: Bun.serve, bun:sqlite, Bun.sql, Bun.password — straight to the runtime. No Node compatibility shims.
+    - title: No baked-in auth
+      details: ACL is generic; bring your own auth (OAuth, sessions, JWT, WebAuthn). The framework just needs `c.var.user` to be set before `aclContext` runs.
 ---
 
 ## Principles {#principles}
@@ -48,6 +50,7 @@ We're explicit about what we **don't** support:
 - **Not a forked Hono.** The Blitz/Next mistake killed Blitz.
 - **No filesystem auto-discovery of modules.** Magic discovery breaks at scale.
 - **No custom bundler or dev server.** Meteor's death.
+- **No baked-in auth module.** Auth is too app-specific. We give you `c.var.user` + the ACL layer and stay out of the way.
 - **No real-time, queues, admin UI, or cron in v1.** Stay focused.
 
 If any of that is a dealbreaker, pick a different tool — and that's fine.

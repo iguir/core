@@ -175,37 +175,11 @@ export type {
     TestRequestInit,
 } from './testing/index'
 
-// ── First-party auth module ────────────────────────────────────────────────
+// ── Drizzle wiring (Bun-native) ────────────────────────────────────────────
 export {
-    authAcl,
-    authContract,
-    authEvents,
-    createAuthModule,
-    MemorySessionStore,
-    MemoryUserStore,
-    toPublicUser,
-} from './auth/index'
-export type {
-    AuthContract,
-    AuthUser,
-    CreateAuthModuleOptions,
-    PublicUser,
-    Session,
-    SessionStore,
-    UserStore,
-} from './auth/index'
-
-// ── First-party Drizzle wiring + Drizzle-backed auth stores ────────────────
-export {
-    authSchema,
-    createAuthTablesIfMissing,
     createDb,
     createPostgresDb,
     createSqliteDb,
-    DrizzleSessionStore,
-    DrizzleUserStore,
-    sessions,
-    users,
 } from './db/index'
 export type {
     DbClient,
