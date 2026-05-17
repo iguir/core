@@ -1,6 +1,4 @@
-import { bootstrap } from '@iguir/core/bootstrap'
-import serve from '@iguir/core/server'
-import { createLogger } from '@iguir/core/logger/pino'
+import { bootstrap, createLogger, serve } from '@iguir/core'
 import config from '../app.config'
 
 const logger = createLogger({ level: process.env.LOG_LEVEL ?? 'info' })

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineEnv } from '@iguir/core/validation/env'
+import { defineEnv } from '@iguir/core'
 
 export const env = defineEnv(
     z.object({

@@ -1,4 +1,4 @@
-import { defineRoutes } from '@iguir/core/routing/code'
+import { defineRoutes } from '@iguir/core'
 
 export const apiRoutes = defineRoutes(({ r }) => {
     r.get('/', { auth: true, permission: '{{name}}.read' }, (c) =>

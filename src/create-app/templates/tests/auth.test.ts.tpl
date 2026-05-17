@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { testApp } from '@iguir/core/testing'
+import { testApp } from '@iguir/core'
 import { roles } from '../src/app/acl'
 import { auth } from '../src/app/auth'
 

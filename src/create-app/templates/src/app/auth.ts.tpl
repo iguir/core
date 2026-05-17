@@ -2,7 +2,7 @@ import {
     createAuthModule,
     DrizzleSessionStore,
     DrizzleUserStore,
-} from '@iguir/core/auth'
+} from '@iguir/core'
 import { db } from './db'
 import { env } from './env'
 

@@ -1,8 +1,8 @@
 import {
-    createSqliteDb,
     authSchema,
     createAuthTablesIfMissing,
-} from '@iguir/core/db'
+    createSqliteDb,
+} from '@iguir/core'
 import { env } from './env'
 
 export const db = createSqliteDb({

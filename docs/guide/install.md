@@ -24,15 +24,34 @@ This creates a working API with auth, a sample `posts` module, SQLite via Drizzl
 bun add @iguir/core hono zod drizzle-orm pino
 ```
 
-The framework is exported in submodule form — pull in what you need:
+Every public primitive is re-exported from the package root — one import line for the lot:
+
+```ts
+import {
+    bootstrap,
+    serve,
+    defineConfig,
+    defineRoles,
+    defineModule,
+    defineRoutes,
+    defineAcl,
+    defineEvents,
+    defineContract,
+    createAuthModule,
+    createSqliteDb,
+    testApp,
+} from '@iguir/core'
+```
+
+Sub-path imports stay available when you want narrower entry points (handy for tree-shaking and dependency-graph clarity):
 
 ```ts
 import { bootstrap } from '@iguir/core/bootstrap'
-import serve from '@iguir/core/server'
-import { defineConfig } from '@iguir/core/config'
-import { defineRoles } from '@iguir/core/acl/roles'
-import { defineModule } from '@iguir/core/module/define'
+import { defineRoutes } from '@iguir/core/routing/code'
+import { defineMeta } from '@iguir/core/jsx/meta'
 ```
+
+Both styles compose freely — `@iguir/core` re-exports from the same modules.
 
 ## Project layout
 

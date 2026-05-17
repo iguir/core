@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineContract } from '@iguir/core/module/contract'
+import { defineContract } from '@iguir/core'
 
 export const {{nameCamel}}Contract = defineContract('{{name}}', {
     // TODO: declare your contract methods, e.g.

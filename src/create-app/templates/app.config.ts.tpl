@@ -1,4 +1,4 @@
-import { defineConfig } from '@iguir/core/config'
+import { defineConfig } from '@iguir/core'
 import { roles } from './src/app/acl'
 import { auth } from './src/app/auth'
 import { postsModule } from './src/modules/posts/posts.module'
