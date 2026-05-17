@@ -12,7 +12,10 @@
     "commit": "cz",
     "build": "bun run build:ts",
     "version": "changeset version",
-    "release": "bun run build && changeset publish"
+    "release": "bun run build && changeset publish",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "config": {
     "commitizen": {
@@ -30,7 +33,8 @@
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
     "semantic-release": "^25.0.3",
-    "vite": "^8.0.13"
+    "vite": "^8.0.13",
+    "vitepress": "^1.6.4"
   },
   "peerDependencies": {
     "typescript": "^5"
