@@ -22,6 +22,7 @@
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",
         "@types/bun": "latest",
-        "typescript": "^5"
+        "typescript": "^5",
+        "vite": "^7.1.13"
     }
 }

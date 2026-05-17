@@ -29,7 +29,8 @@
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
-    "semantic-release": "^25.0.3"
+    "semantic-release": "^25.0.3",
+    "vite": "^8.0.13"
   },
   "peerDependencies": {
     "typescript": "^5"

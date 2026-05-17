@@ -45,6 +45,7 @@ describe('createApp', () => {
             'src/modules/posts/services/index.ts',
             'src/modules/posts/tests/posts.test.ts',
             'tests/auth.test.ts',
+            'vite.config.ts',
         ]
         for (const rel of expected) {
             expect(existsSync(join(rootDir, rel))).toBe(true)

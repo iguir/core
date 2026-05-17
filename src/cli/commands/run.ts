@@ -4,6 +4,16 @@ import { resolve } from 'node:path'
 import { resolveAppConfig } from '../resolve-config'
 import { c } from '../format'
 
+const VITE_CONFIG_CANDIDATES = ['vite.config.ts', 'vite.config.js', 'vite.config.mjs']
+
+function findViteConfig(rootDir: string): string | null {
+    for (const name of VITE_CONFIG_CANDIDATES) {
+        const p = resolve(rootDir, name)
+        if (existsSync(p)) return p
+    }
+    return null
+}
+
 /**
  * Locate the user's server entrypoint. Convention is `src/main.ts`; we walk
  * a small list of fallbacks before giving up so generated apps and one-off
@@ -40,6 +50,42 @@ async function spawnBun(args: string[], cwd: string): Promise<never> {
     process.exit(code)
 }
 
+/**
+ * Spawn the Bun server + Vite client side-by-side. Used by `iguir dev` when
+ * a `vite.config.ts` is present. Kills both children when either exits and
+ * forwards the non-zero exit code.
+ */
+async function spawnDevPair(
+    bunArgs: string[],
+    viteArgs: string[],
+    cwd: string,
+): Promise<never> {
+    const bun = Bun.spawn(['bun', ...bunArgs], {
+        cwd,
+        stdio: ['inherit', 'inherit', 'inherit'],
+    })
+    const vite = Bun.spawn(['bunx', 'vite', ...viteArgs], {
+        cwd,
+        stdio: ['inherit', 'inherit', 'inherit'],
+    })
+
+    const cleanup = () => {
+        if (!bun.killed) bun.kill()
+        if (!vite.killed) vite.kill()
+    }
+    process.on('SIGINT', cleanup)
+    process.on('SIGTERM', cleanup)
+
+    const winner = await Promise.race([
+        bun.exited.then((code) => ({ who: 'bun' as const, code })),
+        vite.exited.then((code) => ({ who: 'vite' as const, code })),
+    ])
+    cleanup()
+    // Drain the other child so we don't leak file descriptors.
+    await Promise.all([bun.exited, vite.exited]).catch(() => {})
+    process.exit(winner.code ?? 0)
+}
+
 export const devCommand = defineCommand({
     meta: {
         name: 'dev',
@@ -48,12 +94,28 @@ export const devCommand = defineCommand({
     args: {
         config: { type: 'string', description: 'Path to app.config.ts.' },
         entry: { type: 'string', description: 'Override the server entrypoint.' },
+        'no-vite': {
+            type: 'boolean',
+            description: 'Skip launching Vite even if vite.config.ts is present.',
+            default: false,
+        },
     },
     async run({ args }) {
         const { rootDir } = await resolveAppConfig({ explicit: args.config })
         const entry = await findEntry(rootDir, args.entry as string | undefined)
-        console.log(c.dim(`Starting dev server: `) + c.cyan(entry))
-        await spawnBun(['--hot', entry], rootDir)
+        const viteCfg = findViteConfig(rootDir)
+
+        if (viteCfg && !args['no-vite']) {
+            console.log(
+                c.dim(`Starting dev server: `) +
+                    c.cyan(entry) +
+                    c.dim(` + vite (${viteCfg.split('/').pop()})`),
+            )
+            await spawnDevPair(['--hot', entry], [], rootDir)
+        } else {
+            console.log(c.dim(`Starting dev server: `) + c.cyan(entry))
+            await spawnBun(['--hot', entry], rootDir)
+        }
     },
 })
 
@@ -76,7 +138,8 @@ export const startCommand = defineCommand({
 export const buildCommand = defineCommand({
     meta: {
         name: 'build',
-        description: 'Build the server bundle with `bun build` (client build pending Step 7).',
+        description:
+            'Build the server with `bun build` and the client with `vite build` when vite.config.ts is present.',
     },
     args: {
         config: { type: 'string', description: 'Path to app.config.ts.' },
@@ -106,6 +169,18 @@ export const buildCommand = defineCommand({
         ]
         if (args.minify) buildArgs.push('--minify')
         if (args.sourcemap) buildArgs.push('--sourcemap')
+
+        const viteCfg = findViteConfig(rootDir)
+        if (viteCfg) {
+            console.log(c.dim(`Building client bundle (vite)…`))
+            const viteProc = Bun.spawn(['bunx', 'vite', 'build'], {
+                cwd: rootDir,
+                stdio: ['inherit', 'inherit', 'inherit'],
+            })
+            const viteCode = await viteProc.exited
+            if (viteCode !== 0) process.exit(viteCode)
+            console.log(c.green('✓ Client bundle built.'))
+        }
 
         console.log(c.dim(`Building server bundle: `) + c.cyan(entry))
         const proc = Bun.spawn(['bun', ...buildArgs], {
