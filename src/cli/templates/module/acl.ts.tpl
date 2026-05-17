@@ -1,4 +1,4 @@
-import { defineAcl } from '@iguir/core/acl/define'
+import { defineAcl } from '@iguir/core'
 
 export const {{nameCamel}}Acl = defineAcl({
     module: '{{name}}',

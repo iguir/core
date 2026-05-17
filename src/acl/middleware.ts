@@ -5,11 +5,9 @@ import type { AclSubject } from './types'
 
 /**
  * Minimum shape every authenticated user must satisfy for ACL resolution.
- * The first-party `@iguir/auth` module (and any custom auth) is free to augment
- * this interface via declaration merging to add fields like `email` etc.
- *
- * `id` is optional at the ACL layer — `aclContext` only needs `roles` — but
- * auth modules will always set it, and `/me`-style endpoints rely on it.
+ * The ACL layer only needs `roles`; auth integrations are free to augment
+ * this interface via declaration merging to add fields like `email`, `id`,
+ * `tenantId`, etc.
  */
 export interface AclUser extends AclSubject {
     id?: string

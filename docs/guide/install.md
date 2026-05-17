@@ -24,15 +24,33 @@ This creates a working API with auth, a sample `posts` module, SQLite via Drizzl
 bun add @iguir/core hono zod drizzle-orm pino
 ```
 
-The framework is exported in submodule form — pull in what you need:
+Every public primitive is re-exported from the package root — one import line for the lot:
+
+```ts
+import {
+    bootstrap,
+    serve,
+    defineConfig,
+    defineRoles,
+    defineModule,
+    defineRoutes,
+    defineAcl,
+    defineEvents,
+    defineContract,
+    createSqliteDb,
+    testApp,
+} from '@iguir/core'
+```
+
+Sub-path imports stay available when you want narrower entry points (handy for tree-shaking and dependency-graph clarity):
 
 ```ts
 import { bootstrap } from '@iguir/core/bootstrap'
-import serve from '@iguir/core/server'
-import { defineConfig } from '@iguir/core/config'
-import { defineRoles } from '@iguir/core/acl/roles'
-import { defineModule } from '@iguir/core/module/define'
+import { defineRoutes } from '@iguir/core/routing/code'
+import { defineMeta } from '@iguir/core/jsx/meta'
 ```
+
+Both styles compose freely — `@iguir/core` re-exports from the same modules.
 
 ## Project layout
 
@@ -46,9 +64,7 @@ my-app/
 │   ├── main.ts                  # bootstrap + serve
 │   ├── app/                     # app-wide singletons (not a module)
 │   │   ├── acl.ts               # defineRoles({...})
-│   │   ├── env.ts               # validated env via defineEnv
-│   │   ├── db.ts                # createDb + auth schema
-│   │   └── auth.ts              # createAuthModule(...)
+│   │   └── env.ts               # validated env via defineEnv
 │   └── modules/
 │       └── posts/
 │           ├── posts.module.ts
@@ -60,10 +76,43 @@ my-app/
 └── tests/                       # cross-module end-to-end tests
 ```
 
+The starter ships in-memory only. Add a database (`createDb` from `@iguir/core` — see the [Database guide](./db)) and your own auth strategy when you need them — neither is baked in.
+
 The `iguir` CLI command is installed as a bin. From your project:
 
 ```sh
 bunx iguir --help
 ```
+
+## Installing the CLI globally
+
+If you want `iguir` available on `$PATH` system-wide (no `bunx` prefix), run from inside the framework checkout:
+
+```sh
+bun run cli:link            # installs the iguir + create-iguir binaries globally
+bun run cli:unlink          # remove them
+```
+
+After `cli:link`:
+
+```sh
+$ which iguir
+/Users/me/.bun/bin/iguir
+
+$ iguir --version
+0.0.1
+```
+
+The `cli:link` script lives inside `@iguir/core`'s `package.json` and is the recommended local-dev path because the binary picks up changes to the source files immediately — no rebuild needed.
+
+### Standalone binary (optional)
+
+For distribution to machines that don't have Bun, compile to a self-contained executable:
+
+```sh
+bun run cli:compile         # writes ./bin/iguir and ./bin/create-iguir
+```
+
+The binaries embed the Bun runtime (~60 MB each) and run on any compatible OS without `bun install`. On first launch on macOS you may need to allow them via System Settings → Privacy & Security.
 
 → Next: [Quick start](./quick-start).

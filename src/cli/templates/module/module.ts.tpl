@@ -1,4 +1,4 @@
-import { defineModule } from '@iguir/core/module/define'
+import { defineModule } from '@iguir/core'
 {{aclImport}}{{contractImport}}{{eventsImport}}{{routesImport}}
 export const {{nameCamel}}Module = defineModule({
     name: '{{name}}',

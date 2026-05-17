@@ -170,4 +170,4 @@ Then in your root layout, include the islands client:
 
 Run with `iguir dev` — it spawns both Bun and Vite. Build with `iguir build` — it runs Vite client build, then Bun server bundle.
 
-→ Next: [Auth](./auth).
+→ Next: [Database (Drizzle)](./db).

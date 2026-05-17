@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { defineRoutes } from '@iguir/core/routing/code'
-import { NotFoundError } from '@iguir/core/errors'
+import { defineRoutes, NotFoundError } from '@iguir/core'
 import type { PostsService } from '../services/index'
 
 const CreatePostBody = z.object({

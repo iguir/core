@@ -98,7 +98,7 @@ Each step must work end-to-end before starting the next.
 5. **Logging & events** ✅ — Pino, in-memory EventBus, `defineEvents`.
 6. **Validation surface** ✅ — `defineEnv`, `defineConfig`, Context types, OpenAPI 3.1 generator.
 7. **JSX layer** ✅ — `renderPage`, `defineLayout` + `RootLayout`, `defineIsland` + registry, `defineMeta` + `renderMetaTags`, `mountPages(manifest)` consumer.
-8. **Sibling packages** — `@iguir/testing` ✅, `@iguir/cli` ✅, `@iguir/db` ✅, `@iguir/auth` ✅, `create-iguir` ✅, `@iguir/vite-plugin` ✅ (page virtual modules + islands client + HMR), docs ⏭.
+8. **Sibling packages** — `@iguir/testing` ✅, `@iguir/cli` ✅, `@iguir/db` ✅ (Drizzle wiring helper), `create-iguir` ✅, `@iguir/vite-plugin` ✅ (page virtual modules + islands client + HMR), docs ✅. **No first-party auth module** — auth is too app-specific (OAuth, sessions, JWT, WebAuthn, custom IdPs). The framework just requires that something populate `c.var.user: AclUser` via a module `globalMiddleware` before `aclContext` runs.
 
 ---
 

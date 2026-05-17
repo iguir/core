@@ -13,10 +13,9 @@ The server listens on `http://localhost:3000`. Try:
 
 ```sh
 curl http://localhost:3000/api/posts/health
-curl -X POST http://localhost:3000/auth/register \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com","password":"longenoughpw"}'
 ```
+
+The sample `posts` module is gated by ACL: most endpoints require an authenticated user. Plug in your auth strategy of choice (OAuth, sessions, JWT, WebAuthn — anything that ends with `c.var.user` being set before `aclContext` runs) and the permission checks just work.
 
 ## Scripts
 
@@ -37,15 +36,14 @@ src/
 ├── main.ts                      # bootstrap + serve + graceful shutdown
 ├── app/                         # app-wide singletons (NOT a module)
 │   ├── acl.ts                   # defineRoles({...})
-│   ├── env.ts                   # validated environment
-│   └── db.ts                    # Drizzle client + auth schema
+│   └── env.ts                   # validated environment
 └── modules/
     └── posts/                   # one full example module
         ├── posts.module.ts
         ├── posts.contract.ts    # public surface — what other modules can call
         ├── posts.acl.ts         # permissions
         ├── routes/api.ts
-        ├── services/
+        ├── services/            # in-memory; swap for Drizzle when you add a DB
         └── tests/
 ```
 

@@ -64,25 +64,23 @@ await app.as({ id: 'u2', roles: ['editor'] })   // new view, no re-bootstrap
 For unit-level testing of a module's contract methods without going through HTTP:
 
 ```ts
-const app = await testApp({ roles, modules: [auth] })
-const auth = app.service(authContract)
-const user = await auth.registerUser({
-    email: 'a@b.c', password: 'longenoughpw', roles: ['customer'],
-})
-expect(user.email).toBe('a@b.c')
+const app = await testApp({ roles, modules: [postsModule] })
+const posts = app.service(postsContract)
+const created = await posts.create({ title: 'Hello', body: 'World' })
+expect(created.title).toBe('Hello')
 ```
 
 ## Asserting on events
 
 ```ts
-const app = await testApp({ roles, modules: [auth] })
-await app.request('/auth/register', {
+const app = await testApp({ roles, modules: [postsModule, emailModule] })
+await app.request('/api/posts', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ email: 'x@y.z', password: 'longenoughpw' }),
+    body: JSON.stringify({ title: 'New' }),
 })
 const events = app.events()
-expect(events.map((e) => e.name)).toContain('auth.user.registered')
+expect(events.map((e) => e.name)).toContain('posts.created')
 ```
 
 ## Test conventions
@@ -92,23 +90,6 @@ expect(events.map((e) => e.name)).toContain('auth.user.registered')
 - **Avoid mocking the framework.** Use `testApp()` with in-memory stores instead.
 
 ## Common patterns
-
-### Auth round-trip
-
-```ts
-const app = await testApp({ roles, modules: [auth] })
-const register = await app.request('/auth/register', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ email: 'a@b.c', password: 'longenoughpw' }),
-})
-const cookie = register.headers.get('set-cookie')!.split(';')[0]
-const me = await app.request('/auth/me', {
-    user: null,
-    headers: { cookie },
-})
-expect(me.status).toBe(200)
-```
 
 ### Asserting validation errors
 

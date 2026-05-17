@@ -111,7 +111,17 @@ interface AclUser {
 }
 ```
 
-Auth middleware populates `c.var.user`. The built-in `@iguir/core/auth` module does this for you (see [Auth](./auth)).
+Auth middleware (yours — the framework doesn't ship one) populates `c.var.user`. Install it as a module's `globalMiddleware` so it runs **before** `aclContext`:
+
+```ts
+defineModule({
+    name: 'auth',
+    globalMiddleware: [yourSessionMiddleware],
+    // ...
+})
+```
+
+`aclContext` then reads `c.var.user` and builds the per-request `can()` checker against the resolved subject.
 
 ## Inspect
 

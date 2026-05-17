@@ -1,4 +1,4 @@
-import { defineRoles } from '@iguir/core/acl/roles'
+import { defineRoles } from '@iguir/core'
 
 export const roles = defineRoles({
     admin: { description: 'Full access; cannot be removed.', system: true },

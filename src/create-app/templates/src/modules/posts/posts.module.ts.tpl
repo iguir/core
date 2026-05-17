@@ -1,4 +1,4 @@
-import { defineModule } from '@iguir/core/module/define'
+import { defineModule } from '@iguir/core'
 import { postsAcl } from './posts.acl'
 import { postsContract } from './posts.contract'
 import { createPostsService } from './services/index'

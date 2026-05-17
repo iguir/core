@@ -36,17 +36,20 @@ describe('createApp', () => {
             'src/main.ts',
             'src/app/acl.ts',
             'src/app/env.ts',
-            'src/app/db.ts',
-            'src/app/auth.ts',
             'src/modules/posts/posts.module.ts',
             'src/modules/posts/posts.contract.ts',
             'src/modules/posts/posts.acl.ts',
             'src/modules/posts/routes/api.ts',
             'src/modules/posts/services/index.ts',
             'src/modules/posts/tests/posts.test.ts',
-            'tests/auth.test.ts',
             'vite.config.ts',
         ]
+        // Files that must NOT be present — auth + db are intentionally not
+        // bundled into the starter so users pick their own strategy.
+        const forbidden = ['src/app/auth.ts', 'src/app/db.ts', 'tests/auth.test.ts']
+        for (const rel of forbidden) {
+            expect(existsSync(join(rootDir, rel))).toBe(false)
+        }
         for (const rel of expected) {
             expect(existsSync(join(rootDir, rel))).toBe(true)
         }

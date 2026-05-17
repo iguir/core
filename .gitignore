@@ -36,3 +36,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # VitePress build output
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+# Compiled CLI binaries (output of `bun run cli:compile`)
+/bin

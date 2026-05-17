@@ -1,11 +1,13 @@
 # Database (Drizzle)
 
-`@iguir/core/db` ships a Bun-native Drizzle wiring. No `pg`, no `postgres`, no `better-sqlite3` — `bun:sqlite` and `Bun.sql` only.
+`@iguir/core` ships a Bun-native Drizzle wiring helper. No `pg`, no `postgres`, no `better-sqlite3` — `bun:sqlite` and `Bun.sql` only.
+
+The database layer is **optional**. The framework doesn't bake in any schema or assume your app needs persistence. Wire one when you need it.
 
 ## Create a client
 
 ```ts
-import { createDb } from '@iguir/core/db'
+import { createDb } from '@iguir/core'
 import * as schema from './schema'
 
 export const db = createDb({
@@ -38,38 +40,25 @@ Returned object always has the same shape:
 }
 ```
 
-## Drizzle schema
+`createDb` also has driver-specific exports if you want to skip the dispatcher: `createSqliteDb` and `createPostgresDb`.
 
-The framework ships a Drizzle schema for the auth module's tables (`iguir_users`, `iguir_sessions`) at `@iguir/core/db/schema/auth`. Spread it into your app's schema:
+## Defining a schema
 
-```ts
-// src/app/db.ts
-import { createSqliteDb, authSchema, createAuthTablesIfMissing } from '@iguir/core/db'
-import { env } from './env'
-
-export const db = createSqliteDb({
-    url: env.DATABASE_URL,
-    schema: authSchema,
-})
-
-// Idempotent — safe on every boot. Real apps use drizzle-kit migrations.
-createAuthTablesIfMissing(db.raw)
-```
-
-## Drizzle-backed auth stores
-
-Plug the Drizzle client into the auth module:
+Schemas are pure Drizzle — the framework doesn't add a DSL. Per their docs:
 
 ```ts
-import { DrizzleUserStore, DrizzleSessionStore } from '@iguir/core/db'
+// src/schema.ts
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 
-createAuthModule({
-    userStore: new DrizzleUserStore({ drizzle: db.drizzle }),
-    sessionStore: new DrizzleSessionStore({ drizzle: db.drizzle }),
+export const posts = sqliteTable('posts', {
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    body: text('body').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 })
 ```
 
-Roles, permission grants, and permission denies are JSON-encoded in single columns — the stores hide the serialization. Expired sessions are dropped on read.
+Pass the module to `createDb({ schema })` so Drizzle's typed queries pick up your tables.
 
 ## Migrations
 
@@ -87,7 +76,7 @@ A `drizzle.config.ts` looks like this:
 import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
-    schema: './src/app/schema.ts',
+    schema: './src/schema.ts',
     out: './drizzle',
     dialect: 'sqlite',
     dbCredentials: { url: 'file:./data.db' },
@@ -96,8 +85,43 @@ export default defineConfig({
 
 `iguir db:*` CLI commands are deferred to v1.1; for now use `drizzle-kit` directly.
 
+## Wiring it through a module
+
+The most common pattern: instantiate the client once in `src/app/db.ts`, then pass it into module factories that need it.
+
+```ts
+// src/app/db.ts
+import { createSqliteDb } from '@iguir/core'
+import { env } from './env'
+import * as schema from './schema'
+
+export const db = createSqliteDb({
+    url: env.DATABASE_URL,
+    schema,
+})
+```
+
+```ts
+// src/modules/posts/posts.module.ts
+import { defineModule } from '@iguir/core'
+import { db } from '../../app/db'
+import { createPostsService } from './services'
+
+const service = createPostsService(db.drizzle)
+
+export const postsModule = defineModule({
+    name: 'posts',
+    provides: postsContract,
+    implementation: () => service,
+    routes: { handler: createApiRoutes(service), prefix: '/api/posts' },
+    onShutdown: () => db.close(),
+})
+```
+
+`onShutdown` makes the client close cleanly on `SIGTERM` / `SIGINT`.
+
 ## Why not pg / postgres / better-sqlite3?
 
-Bun's built-ins are equivalent or faster for our use cases, ship by default, and avoid the native-module compile dance. If you have an existing schema in another lib, write a thin adapter — the framework only cares about the `EventBus` / `UserStore` / `SessionStore` interfaces.
+Bun's built-ins are equivalent or faster, ship by default, and avoid the native-module compile dance. If you have an existing schema in another lib, write a thin adapter — `createDb`'s only requirement is what Drizzle's adapter API accepts.
 
 → Next: [CLI (iguir)](./cli).
